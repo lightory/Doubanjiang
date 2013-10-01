@@ -9,10 +9,16 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 abstract public class BaseApi implements Runnable {
     final static public String BASE_API_URL = "https://api.douban.com/v2/";
     
+    static private ObjectMapper objectMapper;
+    
     private String response;
+    private Object mappedResponse;
     private Handler handler;
     
     @Override
@@ -21,9 +27,18 @@ abstract public class BaseApi implements Runnable {
         
         try {
             this.response = downloadUrl(this.getUrl());
-            Message message = this.handler.obtainMessage(1, this.response);
+            
+            if (null == this.getMappedTopNodeName()) {
+                this.mappedResponse = BaseApi.getObjectMapper().readValue(this.response, this.getMappedClass());
+            } else {
+                final int indexOfTopNodeName = this.response.indexOf(this.getMappedTopNodeName());
+                final int offset = indexOfTopNodeName + this.getMappedTopNodeName().length() + "\":".length();
+                this.mappedResponse = BaseApi.getObjectMapper().readValue(this.response.substring(offset, this.response.length()-1), this.getMappedClass());
+            }
+            
+            Message message = this.handler.obtainMessage(1, this.mappedResponse);
             message.sendToTarget();
-        } catch (IOException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } finally {}
@@ -39,7 +54,6 @@ abstract public class BaseApi implements Runnable {
             conn.connect();
             is = conn.getInputStream();
 
-            // Convert the InputStream into a string
             String contentAsString = toString(is);
             return contentAsString;
         } finally {
@@ -69,5 +83,15 @@ abstract public class BaseApi implements Runnable {
         return response;
     }
     
-    abstract String getUrl();
+    abstract protected String getUrl();
+    abstract protected Class<?> getMappedClass();
+    abstract protected String getMappedTopNodeName();
+
+    private static ObjectMapper getObjectMapper() {
+        if (null == BaseApi.objectMapper) {
+            BaseApi.objectMapper = new ObjectMapper();
+            BaseApi.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        }
+        return BaseApi.objectMapper;
+    }
 }

@@ -10,6 +10,8 @@ import android.view.Menu;
 
 import net.lightory.doubanjiang.api.ApiManager;
 import net.lightory.doubanjiang.api.BookSearchApi;
+import net.lightory.doubanjiang.api.BookShowApi;
+import net.lightory.doubanjiang.data.Book;
 
 @SuppressLint("HandlerLeak")
 public class HomeActivity extends Activity {
@@ -19,14 +21,24 @@ public class HomeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         
-        BookSearchApi api = new BookSearchApi("代表作与被代表作");
-        api.setHandler(new Handler() {
+        BookShowApi bookShowApi = new BookShowApi("25660221");
+        bookShowApi.setHandler(new Handler() {
             public void handleMessage(Message msg) {
-                String response = (String) msg.obj;
-                Log.i("HomeActivity", response);
+                Book book = (Book) msg.obj;
+                Log.i("HomeActivity", book.getTitle());
             }
         });
-        ApiManager.getInstance().execute(api);
+        ApiManager.getInstance().execute(bookShowApi);
+    
+        BookSearchApi bookSearchApi = new BookSearchApi("1Q84");
+        bookSearchApi.setHandler(new Handler() {
+            public void handleMessage(Message msg) {
+                Book[] books = (Book[]) msg.obj;
+                System.out.println(books[0].getTitle());
+                System.out.println(books.length);
+            }
+        });
+        ApiManager.getInstance().execute(bookSearchApi);
     }
 
     @Override
