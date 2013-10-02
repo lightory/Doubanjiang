@@ -8,9 +8,27 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".HomeActivity" >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+   	<Spinner
+		android:id="@+id/search_type_spinner"
+	    android:layout_width="80dp"
+	    android:layout_height="50dp"
+	    android:layout_alignParentLeft="true" />
+	    
+	<EditText
+		android:id="@+id/search_keyword"
+		android:layout_width="wrap_content"
+		android:layout_height="50dp"
+		android:layout_toLeftOf="@+id/search_button"
+		android:layout_toRightOf="@id/search_type_spinner"
+		android:hint="@string/search_hint"
+		android:inputType="text" />
+	
+	<Button
+	    android:id="@id/search_button"
+	    android:layout_width="80dp"
+	    android:layout_height="50dp"
+		android:layout_alignParentRight="true"
+	    android:text="@string/search_button_text"
+	    android:onClick="onSearchButtonClick" />
 
 </RelativeLayout>

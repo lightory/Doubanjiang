@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">DoubanJiang</string>
-    <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">豆瓣酱</string>
+    <string name="search_hint">请输入搜索关键字</string>
+    <string name="search_button_text">搜索</string>
+    <string-array name="search_types">
+        <item>书籍</item>
+        <item>电影</item>
+        <item>音乐</item>
+    </string-array>
 
 </resources>

@@ -1,50 +1,57 @@
 package net.lightory.doubanjiang;
 
+import net.lightory.doubanjiang.api.ApiManager;
+import net.lightory.doubanjiang.api.BookSearchApi;
+import net.lightory.doubanjiang.data.Book;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.util.Log;
-import android.view.Menu;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Spinner;
 
-import net.lightory.doubanjiang.api.ApiManager;
-import net.lightory.doubanjiang.api.BookSearchApi;
-import net.lightory.doubanjiang.api.BookShowApi;
-import net.lightory.doubanjiang.data.Book;
-
-@SuppressLint("HandlerLeak")
 public class HomeActivity extends Activity {
+    
+    static private final class HandlerSearch extends Handler {
+        public void handleMessage(Message msg) {
+            Book[] books = (Book[]) msg.obj;
+            System.out.println(books[0].getTitle());
+        }
+    }
+
+    private Spinner spinner;
+    private EditText editText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         
-        BookShowApi bookShowApi = new BookShowApi("25660221");
-        bookShowApi.setHandler(new Handler() {
-            public void handleMessage(Message msg) {
-                Book book = (Book) msg.obj;
-                Log.i("HomeActivity", book.getTitle());
-            }
-        });
-        ApiManager.getInstance().execute(bookShowApi);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                 R.array.search_types, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        this.getSpinner().setAdapter(adapter);
+    }
     
-        BookSearchApi bookSearchApi = new BookSearchApi("1Q84");
-        bookSearchApi.setHandler(new Handler() {
-            public void handleMessage(Message msg) {
-                Book[] books = (Book[]) msg.obj;
-                System.out.println(books[0].getTitle());
-                System.out.println(books.length);
-            }
-        });
+    public void onSearchButtonClick(View view) {
+        BookSearchApi bookSearchApi = new BookSearchApi(this.getEditText().getText().toString());
+        bookSearchApi.setHandler(new HandlerSearch());
         ApiManager.getInstance().execute(bookSearchApi);
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.home, menu);
-        return true;
+    
+    private Spinner getSpinner() {
+        if (null == this.spinner) {
+            this.spinner = (Spinner) findViewById(R.id.search_type_spinner);
+        }
+        return this.spinner;
+    }
+    
+    private EditText getEditText() {
+        if (null == this.editText) {
+            this.editText = (EditText) findViewById(R.id.search_keyword);
+        }
+        return this.editText;
     }
 }
