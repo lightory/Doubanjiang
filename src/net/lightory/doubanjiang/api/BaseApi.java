@@ -24,6 +24,7 @@ abstract public class BaseApi implements Runnable {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         
         try {
+            System.out.println("Api Requsest: " + this.getUrl());
             this.response = NetworkUtil.request(this.getUrl());
             
             if (null == this.getMappedTopNodeName()) {

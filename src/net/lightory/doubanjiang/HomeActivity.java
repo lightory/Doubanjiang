@@ -11,9 +11,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.app.Activity;
+import android.app.Service;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -37,6 +38,15 @@ public class HomeActivity extends Activity {
                  R.array.search_types, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         this.getSpinner().setAdapter(adapter);
+        
+        new Handler().post(new Runnable(){
+            public void run() {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Service.INPUT_METHOD_SERVICE);
+                //imm.toggleSoftInputFromWindow(getEditText().getApplicationWindowToken(), InputMethodManager.SHOW_FORCED, 0);
+                imm.showSoftInput(getEditText(), InputMethodManager.SHOW_FORCED);
+                getEditText().requestFocus();
+            }
+        });
         
         this.bookListAdapter = new BookListAdapter(this, books, R.layout.book_element);
     }
@@ -65,6 +75,9 @@ public class HomeActivity extends Activity {
             }
         });
         ApiManager.getInstance().execute(api);
+        
+        InputMethodManager imm = (InputMethodManager)getSystemService(Service.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(this.getEditText().getWindowToken(), 0); 
     }
     
     private Spinner getSpinner() {

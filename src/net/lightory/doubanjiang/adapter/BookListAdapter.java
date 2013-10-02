@@ -69,6 +69,7 @@ public class BookListAdapter extends BaseAdapter {
         titleTextView.setText(book.getTitle());
         
         ImageView imageView = (ImageView) convertView.findViewById(R.id.book_element_image);
+        imageView.setImageBitmap(null);
         this.imageLoader.displayImage(book.getImage(), imageView);
        
         return convertView;

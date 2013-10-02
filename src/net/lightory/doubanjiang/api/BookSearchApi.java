@@ -1,5 +1,8 @@
 package net.lightory.doubanjiang.api;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import net.lightory.doubanjiang.data.Book;
 
 public class BookSearchApi extends BaseApi {
@@ -11,7 +14,12 @@ public class BookSearchApi extends BaseApi {
 
     @Override
     protected String getUrl() {
-        return BaseApi.BASE_API_URL + "book/search/?q=" + this.q;
+        try {
+            return BaseApi.BASE_API_URL + "book/search/?q=" + URLEncoder.encode(this.q, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return BaseApi.BASE_API_URL + "book/search/?q=" + this.q;
+        }
     }
 
     @Override
