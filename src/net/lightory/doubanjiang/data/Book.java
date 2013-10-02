@@ -3,6 +3,7 @@ package net.lightory.doubanjiang.data;
 import java.util.ArrayList;
 
 final public class Book {
+    private String alt;
     private ArrayList<String> author;
     private String id;
     private String image;
@@ -11,7 +12,10 @@ final public class Book {
     private String publisher;
     private String summary;
     private String title;
-    private String url;
+
+    public String getAlt() {
+        return alt;
+    }
 
     public ArrayList<String> getAuthor() {
         return author;
@@ -45,8 +49,8 @@ final public class Book {
         return title;
     }
 
-    public String getUrl() {
-        return url;
+    public void setAlt(String alt) {
+        this.alt = alt;
     }
 
     public void setAuthor(ArrayList<String> author) {
@@ -79,10 +83,6 @@ final public class Book {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
     
 }

@@ -1,8 +1,10 @@
 package net.lightory.doubanjiang;
 
 import net.lightory.doubanjiang.api.ApiManager;
+import net.lightory.doubanjiang.api.BaseApi;
 import net.lightory.doubanjiang.api.BookSearchApi;
-import net.lightory.doubanjiang.data.Book;
+import net.lightory.doubanjiang.api.MovieSearchApi;
+import net.lightory.doubanjiang.api.MusicSearchApi;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -16,8 +18,8 @@ public class HomeActivity extends Activity {
     
     static private final class HandlerSearch extends Handler {
         public void handleMessage(Message msg) {
-            Book[] books = (Book[]) msg.obj;
-            System.out.println(books[0].getTitle());
+            Object[] objects = (Object[]) msg.obj;
+            System.out.println(objects);
         }
     }
 
@@ -36,9 +38,18 @@ public class HomeActivity extends Activity {
     }
     
     public void onSearchButtonClick(View view) {
-        BookSearchApi bookSearchApi = new BookSearchApi(this.getEditText().getText().toString());
-        bookSearchApi.setHandler(new HandlerSearch());
-        ApiManager.getInstance().execute(bookSearchApi);
+        BaseApi api = null;
+        String searchType = this.getSpinner().getSelectedItem().toString();
+        String q = this.getEditText().getText().toString();
+        if (searchType.equals("书籍")) {
+            api = new BookSearchApi(q);
+        } else if (searchType.equals("电影")) {
+            api = new MovieSearchApi(q);
+        } else {
+            api = new MusicSearchApi(q);
+        }
+        api.setHandler(new HandlerSearch());
+        ApiManager.getInstance().execute(api);
     }
     
     private Spinner getSpinner() {
