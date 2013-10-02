@@ -1,30 +1,32 @@
 package net.lightory.doubanjiang;
 
+import net.lightory.doubanjiang.adapter.BookListAdapter;
 import net.lightory.doubanjiang.api.ApiManager;
 import net.lightory.doubanjiang.api.BaseApi;
 import net.lightory.doubanjiang.api.BookSearchApi;
 import net.lightory.doubanjiang.api.MovieSearchApi;
 import net.lightory.doubanjiang.api.MusicSearchApi;
+import net.lightory.doubanjiang.data.Book;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.app.Activity;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 
 public class HomeActivity extends Activity {
-    
-    static private final class HandlerSearch extends Handler {
-        public void handleMessage(Message msg) {
-            Object[] objects = (Object[]) msg.obj;
-            System.out.println(objects);
-        }
-    }
 
     private Spinner spinner;
     private EditText editText;
+    private ListView listView;
+    
+    private Book[] books;
+    
+    private BookListAdapter bookListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +37,13 @@ public class HomeActivity extends Activity {
                  R.array.search_types, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         this.getSpinner().setAdapter(adapter);
+        
+        this.bookListAdapter = new BookListAdapter(this, books, R.layout.book_element);
     }
     
     public void onSearchButtonClick(View view) {
         BaseApi api = null;
-        String searchType = this.getSpinner().getSelectedItem().toString();
+        final String searchType = this.getSpinner().getSelectedItem().toString();
         String q = this.getEditText().getText().toString();
         if (searchType.equals("书籍")) {
             api = new BookSearchApi(q);
@@ -48,7 +52,18 @@ public class HomeActivity extends Activity {
         } else {
             api = new MusicSearchApi(q);
         }
-        api.setHandler(new HandlerSearch());
+        api.setHandler(new Handler() {
+            public void handleMessage(Message msg) {
+                Object[] objects = (Object[]) msg.obj;
+                System.out.println(objects);
+                
+                if (objects.getClass().equals(Book[].class)) {
+                    books = (Book[]) objects;
+                    bookListAdapter.setBooks(books);
+                    getListView().setAdapter(bookListAdapter);
+                }
+            }
+        });
         ApiManager.getInstance().execute(api);
     }
     
@@ -64,5 +79,12 @@ public class HomeActivity extends Activity {
             this.editText = (EditText) findViewById(R.id.search_keyword);
         }
         return this.editText;
+    }
+    
+    private ListView getListView() {
+        if (null == this.listView) {
+            this.listView = (ListView) findViewById(R.id.list_view);
+        }
+        return this.listView;
     }
 }

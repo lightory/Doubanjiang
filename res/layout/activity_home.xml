@@ -30,5 +30,12 @@
 		android:layout_alignParentRight="true"
 	    android:text="@string/search_button_text"
 	    android:onClick="onSearchButtonClick" />
+	
+	<ListView
+	    android:id="@+id/list_view"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@id/search_keyword"
+	    android:layout_alignParentBottom="true" />
 
 </RelativeLayout>
