@@ -12,12 +12,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.app.Activity;
 import android.app.Service;
+import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 public class HomeActivity extends Activity {
 
@@ -52,6 +54,9 @@ public class HomeActivity extends Activity {
     }
     
     public void onSearchButtonClick(View view) {
+        final Toast toast = Toast.makeText(getApplicationContext(), "开始搜索", Toast.LENGTH_LONG);
+        toast.show();
+        
         BaseApi api = null;
         final String searchType = this.getSpinner().getSelectedItem().toString();
         String q = this.getEditText().getText().toString();
@@ -66,6 +71,10 @@ public class HomeActivity extends Activity {
             public void handleMessage(Message msg) {
                 Object[] objects = (Object[]) msg.obj;
                 System.out.println(objects);
+                
+                toast.setText("搜索完毕");
+                toast.setDuration(Toast.LENGTH_SHORT);
+                toast.show();
                 
                 if (objects.getClass().equals(Book[].class)) {
                     books = (Book[]) objects;
