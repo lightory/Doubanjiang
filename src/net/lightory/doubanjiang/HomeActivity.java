@@ -8,7 +8,9 @@ import net.lightory.doubanjiang.data.IntentViewable;
 import android.app.Activity;
 import android.app.Service;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -41,6 +43,7 @@ public class HomeActivity extends Activity {
         setContentView(R.layout.activity_home);
         
         getSpinner();
+        getEditText();
         getListView();
     }
     
@@ -72,6 +75,15 @@ public class HomeActivity extends Activity {
     private EditText getEditText() {
         if (null == this.editText) {
             this.editText = (EditText) findViewById(R.id.search_keyword);
+            this.editText.setOnKeyListener(new OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                        onSearchButtonClick(v); 
+                    }
+                    return false;
+                }
+            });
         }
         return this.editText;
     }

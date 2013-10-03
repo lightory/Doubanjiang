@@ -21,7 +21,8 @@
 		android:layout_toLeftOf="@+id/search_button"
 		android:layout_toRightOf="@id/search_type_spinner"
 		android:hint="@string/search_hint"
-		android:inputType="text" />
+		android:inputType="text"
+		android:imeOptions="actionSearch" />
 	
 	<Button
 	    android:id="@id/search_button"
