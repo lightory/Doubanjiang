@@ -1,5 +1,7 @@
 package net.lightory.doubanjiang.adapter;
 
+import java.util.ArrayList;
+
 import net.lightory.doubanjiang.R;
 import net.lightory.doubanjiang.data.Music;
 import android.content.Context;
@@ -17,43 +19,10 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
-public class MusicListAdapter extends BaseAdapter {
+public class MusicListAdapter extends AbsListAdapter<Music> {
     
-    private Context context;
-    private Music[] musics;
-    private int resource;
-    
-    private ImageLoader imageLoader;
-    
-    public MusicListAdapter(Context context, Music[] musics, int resource) {
-        this.context = context;
-        this.musics = musics;
-        this.resource = resource;
-        
-        this.imageLoader = ImageLoader.getInstance();
-        final DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder().build();
-        final ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context.getApplicationContext())
-                .memoryCacheExtraOptions(480, 800)
-                .threadPoolSize(2).threadPriority(Thread.MIN_PRIORITY).denyCacheImageMultipleSizesInMemory()
-                .memoryCache(new UsingFreqLimitedMemoryCache(2 * 1024 * 1024))
-                .discCacheFileNameGenerator(new HashCodeFileNameGenerator())
-                .tasksProcessingOrder(QueueProcessingType.FIFO).defaultDisplayImageOptions(defaultOptions).build();
-        this.imageLoader.init(config);
-    }
-
-    @Override
-    public int getCount() {
-        return this.musics.length;
-    }
-
-    @Override
-    public Music getItem(int position) {
-        return this.musics[position];
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
+    public MusicListAdapter(Context context, ArrayList<Music> objects, int resource) {
+        super(context, objects, resource);
     }
 
     @Override
@@ -63,7 +32,7 @@ public class MusicListAdapter extends BaseAdapter {
             convertView = inflater.inflate(resource, null);
         }
         
-        Music music = this.musics[position];
+        Music music = this.getItem(position);
         
         TextView titleTextView = (TextView) convertView.findViewById(R.id.cell_title);
         titleTextView.setText(music.getTitle());
@@ -75,7 +44,4 @@ public class MusicListAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void setMusics(Music[] musics) {
-        this.musics = musics;
-    }
 }

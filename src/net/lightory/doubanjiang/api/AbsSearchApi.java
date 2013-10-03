@@ -1,6 +1,6 @@
 package net.lightory.doubanjiang.api;
 
-public abstract class AbsSearchApi extends AbsApi {
+public abstract class AbsSearchApi extends AbsListApi {
 
     protected String q;
     

@@ -1,5 +1,8 @@
 package net.lightory.doubanjiang;
 
+import java.util.ArrayList;
+
+import net.lightory.doubanjiang.adapter.AbsListAdapter;
 import net.lightory.doubanjiang.adapter.BookListAdapter;
 import net.lightory.doubanjiang.adapter.MovieListAdapter;
 import net.lightory.doubanjiang.adapter.MusicListAdapter;
@@ -8,10 +11,7 @@ import net.lightory.doubanjiang.api.ApiManager;
 import net.lightory.doubanjiang.api.BookSearchApi;
 import net.lightory.doubanjiang.api.MovieSearchApi;
 import net.lightory.doubanjiang.api.MusicSearchApi;
-import net.lightory.doubanjiang.data.Book;
 import net.lightory.doubanjiang.data.IntentViewable;
-import net.lightory.doubanjiang.data.Movie;
-import net.lightory.doubanjiang.data.Music;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,6 +20,8 @@ import android.app.Activity;
 import android.app.Service;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -30,18 +32,23 @@ import android.widget.Toast;
 
 public class HomeActivity extends Activity {
     
+    final static int TYPE_BOOK  = 1001;
+    final static int TYPE_MOVIE = 1002;
+    final static int TYPE_MUSIC = 1003;
+    
     private Spinner spinner;
     private EditText editText;
     private ListView listView;
     
+    private Integer type;
     private AbsSearchApi searchApi;
-    private Book[] books;
-    private Movie[] movies;
-    private Music[] musics;
     
     private BookListAdapter bookListAdapter;
     private MovieListAdapter movieListAdapter;
     private MusicListAdapter musicListAdapter;
+    
+    private Boolean isLoading = false; 
+    private Boolean isEnd = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +57,6 @@ public class HomeActivity extends Activity {
         
         getSpinner();
         getListView();
-        
-        this.bookListAdapter = new BookListAdapter(this, books, R.layout.cell);
-        this.movieListAdapter = new MovieListAdapter(this, movies, R.layout.cell);
-        this.musicListAdapter = new MusicListAdapter(this, musics, R.layout.cell);
     }
     
     @SuppressLint("HandlerLeak")
@@ -62,33 +65,32 @@ public class HomeActivity extends Activity {
         toast.show();
         
         final String searchType = getSpinner().getSelectedItem().toString();
-        if (searchType.equals("书籍")) searchApi = new BookSearchApi();
-        else if (searchType.equals("电影")) searchApi = new MovieSearchApi();
-        else searchApi = new MusicSearchApi();
+        if (searchType.equals("书籍")) this.type = TYPE_BOOK;
+        else if (searchType.equals("电影")) this.type = TYPE_MOVIE;
+        else this.type = TYPE_MUSIC;
         
+        this.getListAdapter();
+        this.getNewSearchApi();
         searchApi.setQ(this.getEditText().getText().toString());
+        searchApi.setOffset(0);
+        searchApi.setLimit(20);
         searchApi.setHandler(new Handler() {
+            @SuppressWarnings("unchecked")
             public void handleMessage(Message msg) {
-                Object[] objects = (Object[]) msg.obj;
-                System.out.println(objects);
-                
                 toast.setText("搜索完毕");
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.show();
                 
-                if (objects.getClass().equals(Book[].class)) {
-                    books = (Book[]) objects;
-                    bookListAdapter.setBooks(books);
-                    getListView().setAdapter(bookListAdapter);
-                } else if (objects.getClass().equals(Movie[].class)) {
-                    movies = (Movie[]) objects;
-                    movieListAdapter.setMovies(movies);
-                    getListView().setAdapter(movieListAdapter);
-                } else if (objects.getClass().equals(Music[].class)) {
-                    musics = (Music[]) objects;
-                    musicListAdapter.setMusics(musics);
-                    getListView().setAdapter(musicListAdapter);
+                isEnd = false;
+                Object[] objects = (Object[]) msg.obj;
+                ArrayList<Object> arrayList = new ArrayList<Object>();
+                for (Object object : objects) {
+                    arrayList.add(object);
                 }
+                
+                AbsListAdapter<Object> listAdapter = (AbsListAdapter<Object>) getListAdapter();
+                listAdapter.setObjects(arrayList);
+                getListView().setAdapter(listAdapter);
             }
         });
         ApiManager.getInstance().execute(searchApi);
@@ -129,7 +131,82 @@ public class HomeActivity extends Activity {
                     }
                 }
             });
+            this.listView.setOnScrollListener(new OnScrollListener(){
+                @SuppressLint("HandlerLeak")
+                @SuppressWarnings("unchecked")
+                @Override
+                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                    if (isLoading || isEnd) return;
+                    if ((firstVisibleItem + visibleItemCount - 1) < 10) return;
+                    if ((firstVisibleItem + visibleItemCount - 1) < (totalItemCount - 5)) return;
+                    
+                    isLoading = true;
+                    AbsListAdapter<Object> listAdapter = (AbsListAdapter<Object>) getListAdapter();
+                    getNewSearchApi();
+                    searchApi.setQ(getEditText().getText().toString());
+                    searchApi.setOffset(listAdapter.getCount());
+                    searchApi.setLimit(20);
+                    searchApi.setHandler(new Handler() {
+                        public void handleMessage(Message msg) {
+                            AbsListAdapter<Object> listAdapter = (AbsListAdapter<Object>) getListAdapter();
+                            Object[] objects = (Object[]) msg.obj;
+                            for (Object object : objects) {
+                                listAdapter.getObjects().add(object);
+                            }
+                            
+                            listAdapter.notifyDataSetChanged();
+                            isLoading = false;
+                            if (objects.length == 0) isEnd = true;
+                        }
+                    });
+                    ApiManager.getInstance().execute(searchApi);
+                    
+                    System.out.println("onScroll: " + (firstVisibleItem + visibleItemCount - 1));
+                }
+
+                @Override
+                public void onScrollStateChanged(AbsListView view, int scrollState) {
+                    // TODO Auto-generated method stub
+                }
+            });
         }
         return this.listView;
+    }
+    
+    private AbsSearchApi getNewSearchApi() {
+        switch (this.type) {
+            case TYPE_BOOK:
+                this.searchApi = new BookSearchApi();
+                break;
+            case TYPE_MOVIE:
+                this.searchApi = new MovieSearchApi();
+                break;
+            default:
+                this.searchApi = new MusicSearchApi();
+        }
+        return this.searchApi;
+    }
+    
+    private AbsListAdapter<? extends Object> getListAdapter() {
+        switch (this.type) {
+            case TYPE_BOOK: {
+                if (null == this.bookListAdapter) {
+                    this.bookListAdapter = new BookListAdapter(this, null, R.layout.cell);
+                }
+                return this.bookListAdapter;
+            }
+            case TYPE_MOVIE: {
+                if (null == this.movieListAdapter) {
+                    this.movieListAdapter = new MovieListAdapter(this, null, R.layout.cell);
+                }
+                return this.movieListAdapter;
+            }
+            default: {
+                if (null == this.musicListAdapter) {
+                    this.musicListAdapter = new MusicListAdapter(this, null, R.layout.cell);
+                }
+                return this.musicListAdapter;
+            }
+        }
     }
 }

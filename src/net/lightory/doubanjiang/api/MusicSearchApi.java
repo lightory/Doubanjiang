@@ -10,10 +10,10 @@ public class MusicSearchApi extends AbsSearchApi {
     @Override
     protected String getUrl() {
         try {
-            return AbsApi.BASE_API_URL + "music/search/?q=" + URLEncoder.encode(this.q, "UTF-8");
+            return AbsApi.BASE_API_URL + "music/search/?q=" + URLEncoder.encode(this.q, "UTF-8") + "&start=" + this.offset + "&count=" + this.limit;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-            return AbsApi.BASE_API_URL + "music/search/?q=" + this.q;
+            return AbsApi.BASE_API_URL + "music/search/?q=" + this.q + "&start=" + this.offset + "&count=" + this.limit;
         }
     }
 
