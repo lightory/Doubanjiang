@@ -5,20 +5,15 @@ import java.net.URLEncoder;
 
 import net.lightory.doubanjiang.data.Book;
 
-public class BookSearchApi extends BaseApi {
-    private String q;
+public class BookSearchApi extends AbsSearchApi {
     
-    public BookSearchApi(String q) {
-        this.q = q;
-    }
-
     @Override
     protected String getUrl() {
         try {
-            return BaseApi.BASE_API_URL + "book/search/?q=" + URLEncoder.encode(this.q, "UTF-8");
+            return AbsApi.BASE_API_URL + "book/search/?q=" + URLEncoder.encode(this.q, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-            return BaseApi.BASE_API_URL + "book/search/?q=" + this.q;
+            return AbsApi.BASE_API_URL + "book/search/?q=" + this.q;
         }
     }
 
@@ -31,4 +26,5 @@ public class BookSearchApi extends BaseApi {
     protected String getMappedTopNodeName() {
         return "books";
     }
+       
 }

@@ -5,20 +5,15 @@ import java.net.URLEncoder;
 
 import net.lightory.doubanjiang.data.Movie;
 
-public class MovieSearchApi extends BaseApi {
-    private String q;
-    
-    public MovieSearchApi(String q) {
-        this.q = q;
-    }
+public class MovieSearchApi extends AbsSearchApi {
 
     @Override
     protected String getUrl() {
         try {
-            return BaseApi.BASE_API_URL + "movie/search/?q=" + URLEncoder.encode(this.q, "UTF-8");
+            return AbsApi.BASE_API_URL + "movie/search/?q=" + URLEncoder.encode(this.q, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-            return BaseApi.BASE_API_URL + "movie/search/?q=" + this.q;
+            return AbsApi.BASE_API_URL + "movie/search/?q=" + this.q;
         }
     }
 
@@ -31,5 +26,5 @@ public class MovieSearchApi extends BaseApi {
     protected String getMappedTopNodeName() {
         return "subjects";
     }
-
+    
 }

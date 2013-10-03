@@ -1,6 +1,9 @@
 package net.lightory.doubanjiang.data;
 
-public class Music {
+import android.content.Intent;
+import android.net.Uri;
+
+public class Music implements IntentViewable {
     private String alt;
     private String image;
     private String title;
@@ -29,5 +32,11 @@ public class Music {
         this.title = title;
     }
 
+    @Override
+    public Intent getViewIntent() {
+        Uri uri = Uri.parse(this.getAlt());
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        return intent;
+    }
     
 }

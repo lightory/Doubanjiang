@@ -21,7 +21,7 @@ public class ApiManager {
         return instance;
     }
 
-    public void execute(BaseApi api) {
+    public void execute(AbsApi api) {
         this.threadPool.execute(api);
     }
 }

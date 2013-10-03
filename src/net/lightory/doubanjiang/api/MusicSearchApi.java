@@ -5,21 +5,15 @@ import java.net.URLEncoder;
 
 import net.lightory.doubanjiang.data.Music;
 
-public class MusicSearchApi extends BaseApi {
-    
-    private String q;
-    
-    public MusicSearchApi(String q) {
-        this.q = q;
-    }
+public class MusicSearchApi extends AbsSearchApi {
 
     @Override
     protected String getUrl() {
         try {
-            return BaseApi.BASE_API_URL + "music/search/?q=" + URLEncoder.encode(this.q, "UTF-8");
+            return AbsApi.BASE_API_URL + "music/search/?q=" + URLEncoder.encode(this.q, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-            return BaseApi.BASE_API_URL + "music/search/?q=" + this.q;
+            return AbsApi.BASE_API_URL + "music/search/?q=" + this.q;
         }
     }
 
@@ -32,5 +26,5 @@ public class MusicSearchApi extends BaseApi {
     protected String getMappedTopNodeName() {
         return "musics";
     }
-
+    
 }

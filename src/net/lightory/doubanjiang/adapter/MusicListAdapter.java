@@ -1,7 +1,7 @@
 package net.lightory.doubanjiang.adapter;
 
 import net.lightory.doubanjiang.R;
-import net.lightory.doubanjiang.data.Book;
+import net.lightory.doubanjiang.data.Music;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,17 +17,17 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
-public class BookListAdapter extends BaseAdapter {
+public class MusicListAdapter extends BaseAdapter {
     
     private Context context;
-    private Book[] books;
+    private Music[] musics;
     private int resource;
     
     private ImageLoader imageLoader;
     
-    public BookListAdapter(Context context, Book[] books, int resource) {
+    public MusicListAdapter(Context context, Music[] musics, int resource) {
         this.context = context;
-        this.books = books;
+        this.musics = musics;
         this.resource = resource;
         
         this.imageLoader = ImageLoader.getInstance();
@@ -43,12 +43,12 @@ public class BookListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return this.books.length;
+        return this.musics.length;
     }
 
     @Override
-    public Book getItem(int position) {
-        return this.books[position];
+    public Music getItem(int position) {
+        return this.musics[position];
     }
 
     @Override
@@ -63,19 +63,19 @@ public class BookListAdapter extends BaseAdapter {
             convertView = inflater.inflate(resource, null);
         }
         
-        Book book = this.books[position];
+        Music music = this.musics[position];
         
         TextView titleTextView = (TextView) convertView.findViewById(R.id.cell_title);
-        titleTextView.setText(book.getTitle());
+        titleTextView.setText(music.getTitle());
         
         ImageView imageView = (ImageView) convertView.findViewById(R.id.cell_image);
         imageView.setImageBitmap(null);
-        this.imageLoader.displayImage(book.getImage(), imageView);
+        this.imageLoader.displayImage(music.getImage(), imageView);
        
         return convertView;
     }
 
-    public void setBooks(Book[] books) {
-        this.books = books;
+    public void setMusics(Music[] musics) {
+        this.musics = musics;
     }
 }

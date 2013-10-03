@@ -8,7 +8,7 @@ import java.lang.Runnable;
 import net.lightory.doubanjiang.util.MappingUtil;
 import net.lightory.doubanjiang.util.NetworkUtil;
 
-abstract public class BaseApi implements Runnable {
+abstract public class AbsApi implements Runnable {
     final static public String BASE_API_URL = "https://api.douban.com/v2/";
     
     private Handler handler;

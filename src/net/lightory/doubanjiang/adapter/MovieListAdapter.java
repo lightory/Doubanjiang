@@ -1,7 +1,7 @@
 package net.lightory.doubanjiang.adapter;
 
 import net.lightory.doubanjiang.R;
-import net.lightory.doubanjiang.data.Book;
+import net.lightory.doubanjiang.data.Movie;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,17 +17,17 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
-public class BookListAdapter extends BaseAdapter {
+public class MovieListAdapter extends BaseAdapter {
     
     private Context context;
-    private Book[] books;
+    private Movie[] movies;
     private int resource;
     
     private ImageLoader imageLoader;
     
-    public BookListAdapter(Context context, Book[] books, int resource) {
+    public MovieListAdapter(Context context, Movie[] movies, int resource) {
         this.context = context;
-        this.books = books;
+        this.movies = movies;
         this.resource = resource;
         
         this.imageLoader = ImageLoader.getInstance();
@@ -43,12 +43,12 @@ public class BookListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return this.books.length;
+        return this.movies.length;
     }
 
     @Override
-    public Book getItem(int position) {
-        return this.books[position];
+    public Movie getItem(int position) {
+        return this.movies[position];
     }
 
     @Override
@@ -63,19 +63,19 @@ public class BookListAdapter extends BaseAdapter {
             convertView = inflater.inflate(resource, null);
         }
         
-        Book book = this.books[position];
+        Movie movie = this.movies[position];
         
         TextView titleTextView = (TextView) convertView.findViewById(R.id.cell_title);
-        titleTextView.setText(book.getTitle());
+        titleTextView.setText(movie.getTitle());
         
         ImageView imageView = (ImageView) convertView.findViewById(R.id.cell_image);
         imageView.setImageBitmap(null);
-        this.imageLoader.displayImage(book.getImage(), imageView);
+        this.imageLoader.displayImage(movie.getImages().get("small"), imageView);
        
         return convertView;
     }
 
-    public void setBooks(Book[] books) {
-        this.books = books;
+    public void setMovies(Movie[] movies) {
+        this.movies = movies;
     }
 }

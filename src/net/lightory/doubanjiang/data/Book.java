@@ -2,7 +2,10 @@ package net.lightory.doubanjiang.data;
 
 import java.util.ArrayList;
 
-final public class Book {
+import android.content.Intent;
+import android.net.Uri;
+
+final public class Book implements IntentViewable {
     private String alt;
     private ArrayList<String> author;
     private String id;
@@ -83,6 +86,13 @@ final public class Book {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    @Override
+    public Intent getViewIntent() {
+        Uri uri = Uri.parse(this.getAlt());
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        return intent;
     }
     
 }
