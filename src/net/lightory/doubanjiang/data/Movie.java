@@ -8,43 +8,25 @@ import android.net.Uri;
 public class Movie implements IntentViewable {
     
     private String alt;
-    private String id;
     private String title;
-    private String year;
     private LinkedHashMap<String, String> images;
     
     public String getAlt() {
         return alt;
     }
     
-    public String getId() {
-        return id;
-    }
-    
     public String getTitle() {
         return title;
-    }
-    
-    public String getYear() {
-        return year;
     }
     
     public void setAlt(String alt) {
         this.alt = alt;
     }
     
-    public void setId(String id) {
-        this.id = id;
-    }
-    
     public void setTitle(String title) {
         this.title = title;
     }
-    
-    public void setYear(String year) {
-        this.year = year;
-    }
-    
+
     public LinkedHashMap<String, String> getImages() {
         return images;
     }
