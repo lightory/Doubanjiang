@@ -7,14 +7,18 @@ import net.lightory.doubanjiang.api.BookSearchApi;
 import net.lightory.doubanjiang.api.MovieSearchApi;
 import net.lightory.doubanjiang.api.MusicSearchApi;
 import net.lightory.doubanjiang.data.Book;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.app.Activity;
 import android.app.Service;
+import android.content.Intent;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -80,6 +84,14 @@ public class HomeActivity extends Activity {
                     books = (Book[]) objects;
                     bookListAdapter.setBooks(books);
                     getListView().setAdapter(bookListAdapter);
+                    getListView().setOnItemClickListener(new OnItemClickListener(){
+                        @Override
+                        public void onItemClick(AdapterView<?> arg0, View view, int position, long arg3) {
+                            Book book = books[position];
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(book.getAlt()));
+                            startActivity(intent);
+                        }
+                    });
                 }
             }
         });
