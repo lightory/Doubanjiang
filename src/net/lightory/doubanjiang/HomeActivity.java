@@ -1,23 +1,13 @@
 package net.lightory.doubanjiang;
 
-import java.util.ArrayList;
-
 import net.lightory.doubanjiang.adapter.AbsListAdapter;
 import net.lightory.doubanjiang.adapter.BookListAdapter;
 import net.lightory.doubanjiang.adapter.MovieListAdapter;
 import net.lightory.doubanjiang.adapter.MusicListAdapter;
-import net.lightory.doubanjiang.api.AbsSearchApi;
-import net.lightory.doubanjiang.api.ApiManager;
-import net.lightory.doubanjiang.api.BookSearchApi;
-import net.lightory.doubanjiang.api.MovieSearchApi;
-import net.lightory.doubanjiang.api.MusicSearchApi;
 import net.lightory.doubanjiang.data.IntentViewable;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Service;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
@@ -28,7 +18,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 public class HomeActivity extends Activity {
     
@@ -41,14 +30,10 @@ public class HomeActivity extends Activity {
     private ListView listView;
     
     private Integer type;
-    private AbsSearchApi searchApi;
     
     private BookListAdapter bookListAdapter;
     private MovieListAdapter movieListAdapter;
     private MusicListAdapter musicListAdapter;
-    
-    private Boolean isLoading = false; 
-    private Boolean isEnd = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,41 +44,14 @@ public class HomeActivity extends Activity {
         getListView();
     }
     
-    @SuppressLint("HandlerLeak")
     public void onSearchButtonClick(View view) {
-        final Toast toast = Toast.makeText(getApplicationContext(), "开始搜索", Toast.LENGTH_LONG);
-        toast.show();
-        
         final String searchType = getSpinner().getSelectedItem().toString();
         if (searchType.equals("书籍")) this.type = TYPE_BOOK;
         else if (searchType.equals("电影")) this.type = TYPE_MOVIE;
         else this.type = TYPE_MUSIC;
         
-        this.getListAdapter();
-        this.getNewSearchApi();
-        searchApi.setQ(this.getEditText().getText().toString());
-        searchApi.setOffset(0);
-        searchApi.setLimit(20);
-        searchApi.setHandler(new Handler() {
-            @SuppressWarnings("unchecked")
-            public void handleMessage(Message msg) {
-                toast.setText("搜索完毕");
-                toast.setDuration(Toast.LENGTH_SHORT);
-                toast.show();
-                
-                isEnd = false;
-                Object[] objects = (Object[]) msg.obj;
-                ArrayList<Object> arrayList = new ArrayList<Object>();
-                for (Object object : objects) {
-                    arrayList.add(object);
-                }
-                
-                AbsListAdapter<Object> listAdapter = (AbsListAdapter<Object>) getListAdapter();
-                listAdapter.setObjects(arrayList);
-                getListView().setAdapter(listAdapter);
-            }
-        });
-        ApiManager.getInstance().execute(searchApi);
+        getListView().setAdapter(this.getListAdapter());
+        this.getListAdapter().loadData(this.getEditText().getText().toString());
         
         InputMethodManager imm = (InputMethodManager)getSystemService(Service.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(this.getEditText().getWindowToken(), 0); 
@@ -131,37 +89,12 @@ public class HomeActivity extends Activity {
                     }
                 }
             });
-            this.listView.setOnScrollListener(new OnScrollListener(){
-                @SuppressLint("HandlerLeak")
-                @SuppressWarnings("unchecked")
+            this.listView.setOnScrollListener(new OnScrollListener() {
                 @Override
                 public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                    if (isLoading || isEnd) return;
                     if ((firstVisibleItem + visibleItemCount - 1) < 10) return;
                     if ((firstVisibleItem + visibleItemCount - 1) < (totalItemCount - 5)) return;
-                    
-                    isLoading = true;
-                    AbsListAdapter<Object> listAdapter = (AbsListAdapter<Object>) getListAdapter();
-                    getNewSearchApi();
-                    searchApi.setQ(getEditText().getText().toString());
-                    searchApi.setOffset(listAdapter.getCount());
-                    searchApi.setLimit(20);
-                    searchApi.setHandler(new Handler() {
-                        public void handleMessage(Message msg) {
-                            AbsListAdapter<Object> listAdapter = (AbsListAdapter<Object>) getListAdapter();
-                            Object[] objects = (Object[]) msg.obj;
-                            for (Object object : objects) {
-                                listAdapter.getObjects().add(object);
-                            }
-                            
-                            listAdapter.notifyDataSetChanged();
-                            isLoading = false;
-                            if (objects.length == 0) isEnd = true;
-                        }
-                    });
-                    ApiManager.getInstance().execute(searchApi);
-                    
-                    System.out.println("onScroll: " + (firstVisibleItem + visibleItemCount - 1));
+                    getListAdapter().loadMoreData(getEditText().getText().toString());
                 }
 
                 @Override
@@ -171,20 +104,6 @@ public class HomeActivity extends Activity {
             });
         }
         return this.listView;
-    }
-    
-    private AbsSearchApi getNewSearchApi() {
-        switch (this.type) {
-            case TYPE_BOOK:
-                this.searchApi = new BookSearchApi();
-                break;
-            case TYPE_MOVIE:
-                this.searchApi = new MovieSearchApi();
-                break;
-            default:
-                this.searchApi = new MusicSearchApi();
-        }
-        return this.searchApi;
     }
     
     private AbsListAdapter<? extends Object> getListAdapter() {

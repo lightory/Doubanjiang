@@ -20,6 +20,9 @@ public abstract class AbsListAdapter<T> extends BaseAdapter {
     
     protected ImageLoader imageLoader;
     
+    protected Boolean isLoading = false; 
+    protected Boolean isEnd = false;
+    
     public AbsListAdapter(Context context, ArrayList<T> objects, int resource) {
         this.context = context;
         this.objects = objects;
@@ -35,10 +38,13 @@ public abstract class AbsListAdapter<T> extends BaseAdapter {
                 .tasksProcessingOrder(QueueProcessingType.FIFO).defaultDisplayImageOptions(defaultOptions).build();
         this.imageLoader.init(config);
     }
+    
+    abstract public void loadData(String q);
+    abstract public void loadMoreData(String q);
 
     @Override
     public int getCount() {
-        return this.objects.size();
+        return (this.objects != null) ? this.objects.size() : 0;
     }
 
     @Override
